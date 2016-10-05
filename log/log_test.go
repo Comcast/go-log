@@ -30,7 +30,7 @@ import (
 	"testing"
 	"time"
 
-	"github.comcast.com/dna/go-log/log"
+	"github.com/Comcast/go-log/log"
 )
 
 // succeed is the Unicode codepoint for a check mark.

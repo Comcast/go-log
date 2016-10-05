@@ -24,7 +24,7 @@ import (
 	"testing"
 	"time"
 
-	"github.comcast.com/dna/go-log/log"
+	"github.com/Comcast/go-log/log"
 )
 
 // ExampleStart provides a basic example for using the log package.
