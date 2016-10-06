@@ -2,7 +2,7 @@
 
 Logging is an important part of the application and having a consistent logging mechanism and structure is mandatory. With several teams writing different components that talk to each other, being able to read each others logs could be the difference between finding bugs quickly or wasting hours.
 
-## License 
+## License
 This software is licensed under the Apache license. For full text see [LICENSE](./LICENSE)
 
 ## Examples
@@ -92,5 +92,4 @@ The output produced
 ```
 
 ## Project Info
-Project page: https://github.comcast.com/vbo/go-log  
-Package docs: http://godoc.dna.comcast.net/gopkg.dna.comcast.net/dna/go-log/log
+Package docs: https://godoc.org/github.com/Comcast/go-log
