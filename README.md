@@ -92,4 +92,4 @@ The output produced
 ```
 
 ## Project Info
-Package docs: https://godoc.org/github.com/Comcast/go-log
+Package docs: https://godoc.org/github.com/Comcast/go-log/log
