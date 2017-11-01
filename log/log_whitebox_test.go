@@ -241,14 +241,15 @@ func TestOutput(t *testing.T) {
 		// We expect this to generate some message because format is empty.
 		output(&buf, "")
 
+		// don't defer the shutdown because we need a clean start for the next
+		// part of the test.
+		Shutdown()
+
 		if buf.String() != emptyMessage {
 			t.Error("\tempty format should generate error message.", failed)
 		}
 		t.Log("\tempty format should generate error message.", succeed)
 
-		// don't defer the shutdown because we need a clean start for the next
-		// part of the test.
-		Shutdown()
 	}
 	t.Log("Given no format passed to output.")
 	{

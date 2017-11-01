@@ -29,9 +29,9 @@ import (
 
 // Date and time layout for each trace line.
 const (
-	layout       = "2006/01/02 15:04:05.000"
-	emptyMessage = "**** LOG ERROR: MESSAGE IS EMPTY - PLEASE REPORT ****\n"
-	loggingIsOff = "**** LOG WARNING: LOGGING WAS OFF - PLEASE REPORT ****\n"
+	layout        = "2006/01/02 15:04:05.000"
+	emptyMessage  = "**** LOG ERROR: MESSAGE IS EMPTY - PLEASE REPORT ****\n"
+	LoggingWasOff = "**** LOG WARNING: LOGGING WAS OFF - PLEASE REPORT ****\n"
 )
 
 // Formatter provide support for special formatting.
@@ -51,10 +51,14 @@ type logger struct {
 	dest   map[int8]io.Writer
 	destMu sync.RWMutex
 
-	mu    sync.Mutex
-	wg    sync.WaitGroup
-	write chan line
-	timer *time.Timer
+	mu           sync.Mutex
+	wg           sync.WaitGroup
+	write        chan line
+	exit         chan struct{}
+	stallTimeout time.Duration
+	enqueTimer   *time.Timer
+	bulkTimer    *time.Timer
+	bulkLines    map[io.Writer][]byte
 
 	shutdown      bool
 	loggingOff    bool
@@ -65,8 +69,29 @@ type logger struct {
 
 // logger maintains a pointer to the single logger.
 var l = logger{
-	timer:  time.NewTimer(time.Hour),
-	prefix: "PREFIX",
+	enqueTimer: time.NewTimer(time.Hour),
+	bulkTimer:  time.NewTimer(time.Hour),
+	bulkLines:  make(map[io.Writer][]byte, 2),
+	prefix:     "PREFIX",
+}
+
+var bulkLogPeriod = int64(time.Second) // For production, we will use 1 sec, but can change for testing.
+
+// SetBulkLogPeriod sets the private value for the bulk log period.
+func SetBulkLogPeriod(p time.Duration) {
+	atomic.StoreInt64(&bulkLogPeriod, int64(p))
+}
+
+// GetBulkLogPeriod retrieves the private value for the bulk log period.
+func GetBulkLogPeriod() time.Duration {
+	return time.Duration(atomic.LoadInt64(&bulkLogPeriod))
+}
+
+// SetStallTimeout sets the stall timeout value.
+func SetStallTimeout(t time.Duration) {
+	l.mu.Lock()
+	l.stallTimeout = t
+	l.mu.Unlock()
 }
 
 // Init initializes the logging system for use. It can be called
@@ -89,6 +114,8 @@ func Init(prefix string, bufferSize int, dws ...DevWriter) {
 	// Set user defined values.
 	l.prefix = prefix
 	l.write = make(chan line, bufferSize)
+	l.exit = make(chan struct{})
+	l.stallTimeout = 250 * time.Millisecond
 
 	l.destMu.Lock()
 	{
@@ -137,18 +164,25 @@ func Init(prefix string, bufferSize int, dws ...DevWriter) {
 
 // InitTest configures the logger for testing purposes.
 func InitTest(prefix string, bufferSize int, dws ...DevWriter) {
+	SetBulkLogPeriod(50 * time.Millisecond)
 	Init(prefix, bufferSize, dws...)
 	atomic.StoreInt32(&l.test, 1)
 }
 
 // Shutdown will wait until all the pending writes are complete.
 func Shutdown() {
+	// Sleep for a little bit to allow any possible messages that are about to be enqueued to be placed
+	// in the channel.
+	time.Sleep(100 * time.Millisecond)
 	l.mu.Lock()
 	{
 		l.shutdown = true
 		close(l.write)
+		l.exit <- struct{}{}
 		l.wg.Wait()
 		l.write = nil
+		close(l.exit)
+		l.exit = nil
 
 		atomic.StoreInt32(&l.test, 0)
 	}
@@ -218,22 +252,18 @@ func output(w io.Writer, format string, a ...interface{}) {
 			}
 
 			l.loggingOff = false
-			fmt.Fprintf(w, loggingIsOff)
+			fmt.Fprintf(w, LoggingWasOff)
 		}
 
-		const waitTime = 25 * time.Millisecond
-
-		// Found out the timer can be reset down but not up. Creating
-		// the timer with one hour as the initial value.
-		l.timer.Reset(waitTime)
+		l.enqueTimer.Reset(l.stallTimeout)
 
 		// If we can't perform the write within the wait time, then
 		// let's not wait and turn off logging.
 		select {
 		case l.write <- line{w, b}:
 			atomic.AddInt32(&l.pendingWrites, 1)
-			l.timer.Stop()
-		case <-l.timer.C:
+			l.enqueTimer.Stop()
+		case <-l.enqueTimer.C:
 			l.loggingOff = true
 		}
 	}
@@ -243,9 +273,32 @@ func output(w io.Writer, format string, a ...interface{}) {
 // safeWrite is run as a goroutine. It pulls a message from the
 // channel and perform the write.
 func safeWrite() {
-	for ln := range l.write {
-		ln.w.Write(ln.b)
-		atomic.AddInt32(&l.pendingWrites, -1)
+	l.bulkTimer.Reset(GetBulkLogPeriod())
+
+	flush := func() {
+		for k, v := range l.bulkLines {
+			go k.Write(v)
+			delete(l.bulkLines, k)
+		}
+	}
+
+exitFor:
+	for {
+		select {
+		case ln := <-l.write:
+			if ln.w != nil {
+				l.bulkLines[ln.w] = append(l.bulkLines[ln.w], ln.b...)
+			}
+			atomic.AddInt32(&l.pendingWrites, -1)
+		case <-l.bulkTimer.C:
+			l.bulkTimer.Reset(GetBulkLogPeriod())
+			flush()
+		case <-l.exit:
+			l.bulkTimer.Stop()
+			flush()
+			time.Sleep(200 * time.Millisecond) // Need to wait for the flush to perform a write
+			break exitFor
+		}
 	}
 
 	l.wg.Done()
