@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"os"
 	"regexp"
+	"sync"
 	"testing"
 	"time"
 )
@@ -229,10 +230,29 @@ func TestDtFile(t *testing.T) {
 	}
 }
 
+type safeBuffer struct {
+	mu sync.Mutex // Mutext to safeguard the buffer
+	b  bytes.Buffer
+}
+
+func (b *safeBuffer) Write(ab []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.b.Write(ab)
+}
+
+func (b *safeBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.b.String()
+}
+
 func TestOutput(t *testing.T) {
 	t.Log("Given no format passed to output.")
 	{
-		var buf bytes.Buffer
+		var buf safeBuffer
 		Init("TEST", 0, DevWriter{
 			Device: DevAll,
 			Writer: &buf,
@@ -241,14 +261,15 @@ func TestOutput(t *testing.T) {
 		// We expect this to generate some message because format is empty.
 		output(&buf, "")
 
+		// don't defer the shutdown because we need a clean start for the next
+		// part of the test.
+		Shutdown()
+
 		if buf.String() != emptyMessage {
 			t.Error("\tempty format should generate error message.", failed)
 		}
 		t.Log("\tempty format should generate error message.", succeed)
 
-		// don't defer the shutdown because we need a clean start for the next
-		// part of the test.
-		Shutdown()
 	}
 	t.Log("Given no format passed to output.")
 	{

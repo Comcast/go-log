@@ -19,6 +19,7 @@ package log_test
 import (
 	"bytes"
 	"errors"
+	"io"
 	"math"
 	"os"
 	"regexp"
@@ -40,7 +41,7 @@ const succeed = "\u2713"
 const failed = "\u2717"
 
 // logdest implements io.Writer and is the log package destination.
-var logdest bytes.Buffer
+var logdest safeBuffer
 
 // resetLog can be called at the beginning of a test or example.
 func resetLog() { logdest.Reset() }
@@ -54,12 +55,44 @@ func displayLog() {
 	logdest.WriteTo(os.Stderr)
 }
 
+type safeBuffer struct {
+	mu sync.Mutex // Mutext to safeguard the buffer
+	b  bytes.Buffer
+}
+
+func (b *safeBuffer) Write(ab []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.b.Write(ab)
+}
+
+func (b *safeBuffer) WriteTo(w io.Writer) (int64, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.b.WriteTo(w)
+}
+
+func (b *safeBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.b.String()
+}
+
+func (b *safeBuffer) Reset() {
+	b.mu.Lock()
+	b.b.Reset()
+	b.mu.Unlock()
+}
+
 // TestDevices tests that we can set multiple devices
 func TestDevices(t *testing.T) {
 	t.Log("Given the need to test multiple devices.")
 	{
-		var device1 bytes.Buffer
-		var device2 bytes.Buffer
+		var device1 safeBuffer
+		var device2 safeBuffer
 
 		log.InitTest("LOG", 10)
 		log.Dev.Trace(&device1)
@@ -151,28 +184,33 @@ func TestLogBlocking(t *testing.T) {
 	t.Log("Given the need to make sure the logging doesn't stop the program.")
 	{
 		var wg sync.WaitGroup
-		wg.Add(1)
-		go func() {
-			log.Tracef("TEST", "function", "Log: %d", 0)
-			wg.Done()
-		}()
 
-		for i := 0; i < 6; i++ {
-			log.Tracef("TEST", "function", "Log: %d", i)
+		for i := 0; i < 8; i++ {
+			wg.Add(1)
+			go func(i int) {
+				log.Tracef("TEST", "function1", "Log: %d", i)
+				wg.Done()
+			}(i)
+		}
+
+		for i := 0; i < 8; i++ {
+			log.Tracef("TEST", "function2", "Log: %d", i)
 			time.Sleep(25 * time.Millisecond)
 		}
 
 		wg.Wait()
 
+		log.Shutdown()
+
 		c := atomic.LoadInt32(&bw.Writes)
+		// C must be 4 since the bulk log period is set to 50ms and we are trying to emit
+		// 2 mesasges within that interval
 		if c == 4 {
 			t.Log("\tShould have only 4 log writes.", succeed)
 		} else {
 			t.Error("\tShould have only 4 log writes.", failed, bw.Writes)
 		}
 	}
-
-	log.Shutdown()
 }
 
 type blockWriter2 struct {
@@ -182,9 +220,14 @@ type blockWriter2 struct {
 // Write will simulate long periods of blocking. This will allow us
 // to test that the program does not block on log writes.
 func (b *blockWriter2) Write(p []byte) (int, error) {
+	if log.LoggingWasOff == string(p) {
+		return 0, nil
+	}
+
 	c := atomic.AddInt32(&b.count, 1)
+
 	if c%10 == 0 {
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(1000 * time.Millisecond)
 	}
 	return len(p), nil
 }
@@ -198,34 +241,22 @@ func TestLogBlocking2(t *testing.T) {
 
 	t.Log("Given the need to make sure the logging doesn't stop the program.")
 	{
-		now := time.Now()
-
 		for i := 0; i < 5; i++ {
 			for counter := 0; counter < 20; counter++ {
 				log.Tracef("TEST", "function", "Log: %d", counter)
 			}
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(log.GetBulkLogPeriod())
 		}
 
-		dur := time.Since(now)
+		log.Shutdown()
 
 		c := atomic.LoadInt32(&bw.count)
-		if c == 50 {
-			t.Log("\tShould have only 50 log writes.", succeed)
+		if c == 5 {
+			t.Log("\tShould have only 5 log writes.", succeed)
 		} else {
-			t.Error("\tShould have only 50 log writes.", bw.count, failed)
-		}
-
-		const max = 500 * time.Millisecond
-
-		if dur < max {
-			t.Log("\tShould take less than 500 milliseconds", succeed)
-		} else {
-			t.Error("\tShould take less than 500 milliseconds", max, dur, failed)
+			t.Error("\tShould have only 5 log writes.", bw.count, failed)
 		}
 	}
-
-	log.Shutdown()
 }
 
 // TestLoggingLevels tests that each logging level is working.
@@ -246,7 +277,7 @@ func TestLoggingLevels(t *testing.T) {
 		for _, d := range data {
 			t.Logf("\tWhen we are at logging %s", d.n)
 			{
-				var buf bytes.Buffer
+				var buf safeBuffer
 				log.InitTest("LOG", 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 				f := func() int {
@@ -309,7 +340,7 @@ func TestLoggingUpLevels(t *testing.T) {
 		for _, d := range data {
 			t.Logf("\tWhen we are at logging %s", d.n)
 			{
-				var buf bytes.Buffer
+				var buf safeBuffer
 				log.InitTest("LOG", 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 				f := func() int {
@@ -753,7 +784,7 @@ func TestUpLoggerErrPanicf(t *testing.T) {
 func TestDoubleInit(t *testing.T) {
 	log.InitTest("TEST", 0, log.DevWriter{Device: log.DevAll, Writer: new(bytes.Buffer)})
 
-	var buf bytes.Buffer
+	var buf safeBuffer
 	log.InitTest("LOG", 10, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 	log.Warnf("ctx", "ExampleLog", "Hola, mundo")
@@ -774,7 +805,7 @@ func TestLineNumbers(t *testing.T) {
 
 	// Will not be performing panic-related tests
 
-	var buf bytes.Buffer
+	var buf safeBuffer
 	log.Init(context, 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 	defer log.Shutdown()
 
@@ -908,7 +939,7 @@ func TestLineNumbers(t *testing.T) {
 }
 
 // testLoggerUp1 ensures that Up1 calls produce the correct line number.
-func testLoggerUp1(t *testing.T, logger *log.Logger, buf *bytes.Buffer, expectedLineNumber int) {
+func testLoggerUp1(t *testing.T, logger *log.Logger, buf *safeBuffer, expectedLineNumber int) {
 	context := "testLoggerUp1"
 	str := "dummy string"
 	dummyErr := errors.New("dummy error")
@@ -963,9 +994,9 @@ func testLoggerUp1(t *testing.T, logger *log.Logger, buf *bytes.Buffer, expected
 
 // testLineNumber processes the logging line, extracts the line number and compares it against what
 // is expected.
-func testLineNumber(t *testing.T, testCall string, buf *bytes.Buffer, expectedLineNumber int) {
-	// sleep a little before reading to make sure the string gets pushed in the buffer.
-	time.Sleep(50 * time.Millisecond)
+func testLineNumber(t *testing.T, testCall string, buf *safeBuffer, expectedLineNumber int) {
+	// sleep a little longer than the bulkLogPeriod before reading to make sure the string gets pushed in the buffer.
+	time.Sleep(log.GetBulkLogPeriod() + 10*time.Millisecond)
 
 	str := buf.String()
 	buf.Reset() // done with the buffer, clean it
