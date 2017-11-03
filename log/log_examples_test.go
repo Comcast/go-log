@@ -17,7 +17,6 @@
 package log_test
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"strconv"
@@ -30,7 +29,7 @@ import (
 // ExampleStart provides a basic example for using the log package.
 func ExampleStart() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -55,7 +54,7 @@ func ExampleStart() {
 // ExampleErr provides an example of logging an error.
 func ExampleErr() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -84,7 +83,7 @@ func ExampleErr() {
 // ExampleDataKV provides an example of logging K/V pair data.
 func ExampleDataKV() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -108,7 +107,7 @@ func ExampleDataKV() {
 // ExampleDataBlock provides an example of logging a block of data.
 func ExampleDataBlock() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -137,7 +136,7 @@ type Message []byte
 // Format implements the Formatter interface to produce logging output
 // for this slice of bytes.
 func (m Message) Format() string {
-	var buf bytes.Buffer
+	var buf safeBuffer
 
 	// Message Bytes:	(0x0000) EE 6E 11 00 00 00 3E EA DE 18 00 00 2D 00 00 00
 	// 					(0x0010) 00 00 00 00 00 0A 16 C3 9B 00 00 00 00 00 00 00
@@ -174,7 +173,7 @@ func (m Message) Format() string {
 // ExampleDataTrace provides an example of logging from a fmt.Stringer.
 func ExampleDataTrace() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -203,7 +202,7 @@ func ExampleDataTrace() {
 // ExampleTracef provides an example of logging from a fmt.Stringer and also tests newline handling.
 func ExampleTracef() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -248,7 +247,7 @@ func ExampleUplevel_Start() {
 	//   16: }
 
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	{
@@ -274,7 +273,7 @@ func ExampleUplevel_Start() {
 // the log flushes and takes the change.
 func Example_multipleInit() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("EXAMPLE", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 	log.Start("1234", "Basic")
 	log.Complete("1234", "Basic")
@@ -301,7 +300,7 @@ func BenchmarkTracef(b *testing.B) {
 // ExampleSplunk provides an example of logging a message in a splunk-able format.
 func ExampleSplunk() {
 	// Init the log system using a buffer for testing.
-	buf := new(bytes.Buffer)
+	buf := new(safeBuffer)
 	log.InitTest("TestSplunk", 10, log.DevWriter{Device: log.DevAll, Writer: buf})
 
 	sl1 := log.SplunkValue{1, 2, 3, 4}           // slice of ints.

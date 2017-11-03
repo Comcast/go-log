@@ -178,10 +178,9 @@ func Shutdown() {
 	{
 		l.shutdown = true
 		close(l.write)
-		l.exit <- struct{}{}
+		close(l.exit)
 		l.wg.Wait()
 		l.write = nil
-		close(l.exit)
 		l.exit = nil
 
 		atomic.StoreInt32(&l.test, 0)
@@ -277,7 +276,11 @@ func safeWrite() {
 
 	flush := func() {
 		for k, v := range l.bulkLines {
-			go k.Write(v)
+			go func(k io.Writer, v []byte) {
+				if _, err := k.Write(v); err != nil {
+					fmt.Fprintf(os.Stderr, "safeWrite ERROR: %s\n", err)
+				}
+			}(k, v)
 			delete(l.bulkLines, k)
 		}
 	}
