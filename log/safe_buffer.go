@@ -10,7 +10,7 @@ import (
 // It uses a mutex to protect the buffer and wraps few methods that can be used during
 // various test cases.
 type SafeBuffer struct {
-	mu sync.Mutex // Mutext to safeguard the buffer
+	mu sync.Mutex // Mutex to safeguard the buffer
 	b  bytes.Buffer
 }
 
