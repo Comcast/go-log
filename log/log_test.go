@@ -19,7 +19,6 @@ package log_test
 import (
 	"bytes"
 	"errors"
-	"io"
 	"math"
 	"os"
 	"regexp"
@@ -41,7 +40,7 @@ const succeed = "\u2713"
 const failed = "\u2717"
 
 // logdest implements io.Writer and is the log package destination.
-var logdest safeBuffer
+var logdest log.SafeBuffer
 
 // resetLog can be called at the beginning of a test or example.
 func resetLog() { logdest.Reset() }
@@ -55,44 +54,12 @@ func displayLog() {
 	logdest.WriteTo(os.Stderr)
 }
 
-type safeBuffer struct {
-	mu sync.Mutex // Mutext to safeguard the buffer
-	b  bytes.Buffer
-}
-
-func (b *safeBuffer) Write(ab []byte) (int, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	return b.b.Write(ab)
-}
-
-func (b *safeBuffer) WriteTo(w io.Writer) (int64, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	return b.b.WriteTo(w)
-}
-
-func (b *safeBuffer) String() string {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	return b.b.String()
-}
-
-func (b *safeBuffer) Reset() {
-	b.mu.Lock()
-	b.b.Reset()
-	b.mu.Unlock()
-}
-
 // TestDevices tests that we can set multiple devices
 func TestDevices(t *testing.T) {
 	t.Log("Given the need to test multiple devices.")
 	{
-		var device1 safeBuffer
-		var device2 safeBuffer
+		var device1 log.SafeBuffer
+		var device2 log.SafeBuffer
 
 		log.InitTest("LOG", 10)
 		log.Dev.Trace(&device1)
@@ -277,7 +244,7 @@ func TestLoggingLevels(t *testing.T) {
 		for _, d := range data {
 			t.Logf("\tWhen we are at logging %s", d.n)
 			{
-				var buf safeBuffer
+				var buf log.SafeBuffer
 				log.InitTest("LOG", 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 				f := func() int {
@@ -340,7 +307,7 @@ func TestLoggingUpLevels(t *testing.T) {
 		for _, d := range data {
 			t.Logf("\tWhen we are at logging %s", d.n)
 			{
-				var buf safeBuffer
+				var buf log.SafeBuffer
 				log.InitTest("LOG", 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 				f := func() int {
@@ -784,7 +751,7 @@ func TestUpLoggerErrPanicf(t *testing.T) {
 func TestDoubleInit(t *testing.T) {
 	log.InitTest("TEST", 0, log.DevWriter{Device: log.DevAll, Writer: new(bytes.Buffer)})
 
-	var buf safeBuffer
+	var buf log.SafeBuffer
 	log.InitTest("LOG", 10, log.DevWriter{Device: log.DevAll, Writer: &buf})
 
 	log.Warnf("ctx", "ExampleLog", "Hola, mundo")
@@ -805,7 +772,7 @@ func TestLineNumbers(t *testing.T) {
 
 	// Will not be performing panic-related tests
 
-	var buf safeBuffer
+	var buf log.SafeBuffer
 	log.Init(context, 0, log.DevWriter{Device: log.DevAll, Writer: &buf})
 	defer log.Shutdown()
 
@@ -939,7 +906,7 @@ func TestLineNumbers(t *testing.T) {
 }
 
 // testLoggerUp1 ensures that Up1 calls produce the correct line number.
-func testLoggerUp1(t *testing.T, logger *log.Logger, buf *safeBuffer, expectedLineNumber int) {
+func testLoggerUp1(t *testing.T, logger *log.Logger, buf *log.SafeBuffer, expectedLineNumber int) {
 	context := "testLoggerUp1"
 	str := "dummy string"
 	dummyErr := errors.New("dummy error")
@@ -994,7 +961,7 @@ func testLoggerUp1(t *testing.T, logger *log.Logger, buf *safeBuffer, expectedLi
 
 // testLineNumber processes the logging line, extracts the line number and compares it against what
 // is expected.
-func testLineNumber(t *testing.T, testCall string, buf *safeBuffer, expectedLineNumber int) {
+func testLineNumber(t *testing.T, testCall string, buf *log.SafeBuffer, expectedLineNumber int) {
 	// sleep a little longer than the bulkLogPeriod before reading to make sure the string gets pushed in the buffer.
 	time.Sleep(log.GetBulkLogPeriod() + 10*time.Millisecond)
 
