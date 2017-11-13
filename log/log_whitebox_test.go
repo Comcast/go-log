@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"os"
 	"regexp"
-	"sync"
 	"testing"
 	"time"
 )
@@ -230,29 +229,10 @@ func TestDtFile(t *testing.T) {
 	}
 }
 
-type safeBuffer struct {
-	mu sync.Mutex // Mutext to safeguard the buffer
-	b  bytes.Buffer
-}
-
-func (b *safeBuffer) Write(ab []byte) (int, error) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	return b.b.Write(ab)
-}
-
-func (b *safeBuffer) String() string {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	return b.b.String()
-}
-
 func TestOutput(t *testing.T) {
 	t.Log("Given no format passed to output.")
 	{
-		var buf safeBuffer
+		var buf SafeBuffer
 		Init("TEST", 0, DevWriter{
 			Device: DevAll,
 			Writer: &buf,
