@@ -29,7 +29,7 @@ import (
 
 // Date and time layout for each trace line.
 const (
-	layout        = "2006/01/02 15:04:05.000"
+	layout        = "2006/01/02 15:04:05.000000000"
 	emptyMessage  = "**** LOG ERROR: MESSAGE IS EMPTY - PLEASE REPORT ****\n"
 	LoggingWasOff = "**** LOG WARNING: LOGGING WAS OFF - PLEASE REPORT ****\n"
 )

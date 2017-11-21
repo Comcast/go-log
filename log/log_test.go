@@ -73,7 +73,7 @@ func TestDevices(t *testing.T) {
 			log.Shutdown()
 
 			got := device1.String()
-			exp := "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: Device1: TestDevices: Trace: Hello\n"
+			exp := "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: Device1: TestDevices: Trace: Hello\n"
 
 			if got == exp {
 				t.Log("\t\tShould log the expected trace line for Trace.", succeed)
@@ -82,7 +82,7 @@ func TestDevices(t *testing.T) {
 			}
 
 			got = device2.String()
-			exp = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: Device2: TestDevices: Warning: Hello\n"
+			exp = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: Device2: TestDevices: Warning: Hello\n"
 
 			if got == exp {
 				t.Log("\t\tShould log the expected trace line for Warning.", succeed)
@@ -102,8 +102,8 @@ func TestDataStringEmpty(t *testing.T) {
 			message  string
 			expected string
 		}{
-			{"test", "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestDataStringEmpty: DATA:\n\ttest\n"},
-			{"", "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestDataStringEmpty: DATA: %!ds(MISSING)\n"},
+			{"test", "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestDataStringEmpty: DATA:\n\ttest\n"},
+			{"", "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestDataStringEmpty: DATA: %!ds(MISSING)\n"},
 		}
 
 		for _, tt := range cases {
@@ -372,64 +372,64 @@ func TestLoggingFuncs(t *testing.T) {
 			expected string
 			f        func()
 		}{
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func() {
 				log.Start(context, "foo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func() {
 				log.Startf(context, "foo", "walrus[%d]", 500)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func() {
 				log.Complete(context, "bar")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func() {
 				log.Completef(context, "bar", "horse[%d]", 3)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func() {
 				log.CompleteErr(errors.New("A"), context, "baz")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func() {
 				log.CompleteErrf(errors.New("B"), context, "baz", "puppies[%d]", 777)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func() {
 				log.Err(errors.New("C"), context, "boo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func() {
 				log.Errf(errors.New("D"), context, "bee", "ip[%s]", "127.0.0.1")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func() {
 				log.Tracef(context, "faa", "len[%d]", 13)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func() {
 				log.Warnf(context, "fii", "usage[%f]", 99.9)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func() {
 				log.Queryf(context, "beer", "howmany[%d]", 0)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func() {
 				log.DataKV(context, "oom", "2b", "!2b")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func() {
 				log.DataBlock(context, "moo", "asdf I'm running out of ideas.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func() {
 				log.DataBlock(context, "moo", 5)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func() {
 				log.DataBlock(context, "moo", math.NaN())
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func() {
 				log.DataString(context, "boo", "not\nthat\nthey\nwere\nvery\ngood to start with.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: DATA:\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: DATA:\n", func() {
 				log.DataString(context, "boo", "\n\n\n\n")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func() {
 				log.DataTrace(context, "aah", SomeFormatter{})
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func() {
 				log.DataTrace(context, "aah", EmptyFormatter{})
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func() {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func() {
 				log.DataTrace(context, "aah", nil)
 			}},
 		}
@@ -451,7 +451,7 @@ func TestLoggingFuncs(t *testing.T) {
 }
 
 func TestErrPanic(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanic should have panicked.", failed)
@@ -473,7 +473,7 @@ func TestErrPanic(t *testing.T) {
 }
 
 func TestErrPanicf(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanicf should have panicked.", failed)
@@ -502,58 +502,58 @@ func TestLoggerFuncs(t *testing.T) {
 			expected string
 			f        func(*log.Logger)
 		}{
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func(ll *log.Logger) {
 				ll.Start(context, "foo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func(ll *log.Logger) {
 				ll.Startf(context, "foo", "walrus[%d]", 500)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func(ll *log.Logger) {
 				ll.Complete(context, "bar")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func(ll *log.Logger) {
 				ll.Completef(context, "bar", "horse[%d]", 3)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func(ll *log.Logger) {
 				ll.CompleteErr(errors.New("A"), context, "baz")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func(ll *log.Logger) {
 				ll.CompleteErrf(errors.New("B"), context, "baz", "puppies[%d]", 777)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func(ll *log.Logger) {
 				ll.Err(errors.New("C"), context, "boo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func(ll *log.Logger) {
 				ll.Errf(errors.New("D"), context, "bee", "ip[%s]", "127.0.0.1")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func(ll *log.Logger) {
 				ll.Tracef(context, "faa", "len[%d]", 13)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func(ll *log.Logger) {
 				ll.Warnf(context, "fii", "usage[%f]", 99.9)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func(ll *log.Logger) {
 				ll.Queryf(context, "beer", "howmany[%d]", 0)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func(ll *log.Logger) {
 				ll.DataKV(context, "oom", "2b", "!2b")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func(ll *log.Logger) {
 				ll.DataBlock(context, "moo", "asdf I'm running out of ideas.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func(ll *log.Logger) {
 				ll.DataBlock(context, "moo", 5)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func(ll *log.Logger) {
 				ll.DataBlock(context, "moo", math.NaN())
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func(ll *log.Logger) {
 				ll.DataString(context, "boo", "not\nthat\nthey\nwere\nvery\ngood to start with.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func(ll *log.Logger) {
 				ll.DataTrace(context, "aah", SomeFormatter{})
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func(ll *log.Logger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func(ll *log.Logger) {
 				ll.DataTrace(context, "aah", EmptyFormatter{})
 			}},
 		}
@@ -576,7 +576,7 @@ func TestLoggerFuncs(t *testing.T) {
 }
 
 func TestLoggerErrPanic(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanic should have panicked.", failed)
@@ -599,7 +599,7 @@ func TestLoggerErrPanic(t *testing.T) {
 }
 
 func TestLoggerErrPanicf(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanicf should have panicked.", failed)
@@ -629,58 +629,58 @@ func TestUpLoggerFuncs(t *testing.T) {
 			expected string
 			f        func(*log.UplevelLogger)
 		}{
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started:\n", func(ll *log.UplevelLogger) {
 				ll.Start(context, "foo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: foo: Started: walrus[500]\n", func(ll *log.UplevelLogger) {
 				ll.Startf(context, "foo", "walrus[%d]", 500)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed:\n", func(ll *log.UplevelLogger) {
 				ll.Complete(context, "bar")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bar: Completed: horse[3]\n", func(ll *log.UplevelLogger) {
 				ll.Completef(context, "bar", "horse[%d]", 3)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: A\n", func(ll *log.UplevelLogger) {
 				ll.CompleteErr(errors.New("A"), context, "baz")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: baz: Completed ERROR: puppies[777]: B\n", func(ll *log.UplevelLogger) {
 				ll.CompleteErrf(errors.New("B"), context, "baz", "puppies[%d]", 777)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: ERROR: C\n", func(ll *log.UplevelLogger) {
 				ll.Err(errors.New("C"), context, "boo")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: bee: ERROR: ip[127.0.0.1]: D\n", func(ll *log.UplevelLogger) {
 				ll.Errf(errors.New("D"), context, "bee", "ip[%s]", "127.0.0.1")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: faa: Trace: len[13]\n", func(ll *log.UplevelLogger) {
 				ll.Tracef(context, "faa", "len[%d]", 13)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: fii: Warning: usage[99.900000]\n", func(ll *log.UplevelLogger) {
 				ll.Warnf(context, "fii", "usage[%f]", 99.9)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: beer: Query: howmany[0]\n", func(ll *log.UplevelLogger) {
 				ll.Queryf(context, "beer", "howmany[%d]", 0)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: oom: DATA: 2b: !2b\n", func(ll *log.UplevelLogger) {
 				ll.DataKV(context, "oom", "2b", "!2b")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tasdf I'm running out of ideas.\n", func(ll *log.UplevelLogger) {
 				ll.DataBlock(context, "moo", "asdf I'm running out of ideas.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\t5\n", func(ll *log.UplevelLogger) {
 				ll.DataBlock(context, "moo", 5)
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: moo: DATA:\n\tjson: unsupported value: NaN\n", func(ll *log.UplevelLogger) {
 				ll.DataBlock(context, "moo", math.NaN())
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: boo: DATA:\n\tnot\n\tthat\n\tthey\n\twere\n\tvery\n\tgood to start with.\n", func(ll *log.UplevelLogger) {
 				ll.DataString(context, "boo", "not\nthat\nthey\nwere\nvery\ngood to start with.")
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n\t42\n", func(ll *log.UplevelLogger) {
 				ll.DataTrace(context, "aah", SomeFormatter{})
 			}},
-			{"2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func(ll *log.UplevelLogger) {
+			{"2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: aah: DATA:\n", func(ll *log.UplevelLogger) {
 				ll.DataTrace(context, "aah", EmptyFormatter{})
 			}},
 		}
@@ -703,7 +703,7 @@ func TestUpLoggerFuncs(t *testing.T) {
 }
 
 func TestUpLoggerErrPanic(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanic should have panicked.", failed)
@@ -726,7 +726,7 @@ func TestUpLoggerErrPanic(t *testing.T) {
 }
 
 func TestUpLoggerErrPanicf(t *testing.T) {
-	const expected = "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
+	const expected = "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: ERROR: we're doomed -bender-: A\n2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: TEST: TestErrPanic: TERMINATING\n"
 	defer func() {
 		if r := recover(); r == nil {
 			t.Error("\t\tErrPanicf should have panicked.", failed)
@@ -758,7 +758,7 @@ func TestDoubleInit(t *testing.T) {
 
 	log.Shutdown()
 
-	expected := "2009/11/10 15:00:00.000: LOG[69910]: file.go#512: ctx: ExampleLog: Warning: Hola, mundo\n"
+	expected := "2009/11/10 15:00:00.000000000: LOG[69910]: file.go#512: ctx: ExampleLog: Warning: Hola, mundo\n"
 	if got := buf.String(); got != expected {
 		t.Errorf("Got:\n%q\nExpected:\n%q", got, expected)
 	}
