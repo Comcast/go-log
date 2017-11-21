@@ -47,8 +47,8 @@ func ExampleStart() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed: Conv[10]
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed: Conv[10]
 }
 
 // ExampleErr provides an example of logging an error.
@@ -76,8 +76,8 @@ func ExampleErr() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Error: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Error: Completed ERROR: strconv.ParseInt: parsing "1080980980980980980898908": value out of range
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Error: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Error: Completed ERROR: strconv.ParseInt: parsing "1080980980980980980898908": value out of range
 }
 
 // ExampleDataKV provides an example of logging K/V pair data.
@@ -98,10 +98,10 @@ func ExampleDataKV() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: DATA: Value 1: 1
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: DATA: Hex Value 2: 2
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: Completed:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: DATA: Value 1: 1
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: DATA: Hex Value 2: 2
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_KV: Completed:
 }
 
 // ExampleDataBlock provides an example of logging a block of data.
@@ -124,11 +124,11 @@ func ExampleDataBlock() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: DATA:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: DATA:
 	// 	Test Data with
 	// 	2 lines
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: Completed:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_Block: Completed:
 }
 
 type Message []byte
@@ -190,13 +190,13 @@ func ExampleDataTrace() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_String: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_String: DATA:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_String: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_String: DATA:
 	// 	Message Bytes:	(0x0000) EE 6E 11 00 00 00 3E EA DE 18 00 00 2D 00 00 00
 	// 				(0x0010) 3E EA DE
 	// 	Message Bytes:	(0x0000) EE 6E 11 00 00 00 3E EA DE 18 00 00 2D 00 00 00
 	// 				(0x0010) 3E EA DE
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Data_String: Completed:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Data_String: Completed:
 }
 
 // ExampleTracef provides an example of logging from a fmt.Stringer and also tests newline handling.
@@ -217,10 +217,10 @@ func ExampleTracef() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: 1234: Basic
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: 1234: Basic
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: ABCD: Basic
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: ABCD: Basic
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: 1234: Basic
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: 1234: Basic
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: ABCD: Basic
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Tracef: Trace: ABCD: Basic
 }
 
 // ExampleUplevel_Start provides an example of using the level up functionality.
@@ -264,9 +264,9 @@ func ExampleUplevel_Start() {
 	fmt.Println(buf.String())
 
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Trace: Test
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Trace: Test
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed:
 }
 
 // Example_multipleInit tests that when Init is called back to back,
@@ -286,8 +286,8 @@ func Example_multipleInit() {
 	log.Shutdown()
 	fmt.Println(buf.String())
 	// Output:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
-	// 2009/11/10 15:00:00.000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Started:
+	// 2009/11/10 15:00:00.000000000: EXAMPLE[69910]: file.go#512: 1234: Basic: Completed:
 }
 
 func BenchmarkTracef(b *testing.B) {
@@ -309,7 +309,7 @@ func ExampleSplunk() {
 
 	m := []log.SplunkPair{
 		{Key: "Key1", Value: "Value1"},
-		{Key: "RequestTime", Value: time.Date(2019, time.November, 10, 15, 0, 0, 0, time.UTC).UTC().Format("2006/01/02 15:04:05.000")},
+		{Key: "RequestTime", Value: time.Date(2019, time.November, 10, 15, 0, 0, 0, time.UTC).UTC().Format("2006/01/02 15:04:05.000000000")},
 		{Key: "MAC", Value: "010203040506"},
 		{Key: "ResponseCode", Value: 0},
 		{Key: "Slice", Value: sl1},
@@ -319,7 +319,7 @@ func ExampleSplunk() {
 	log.Splunk(m...)
 
 	log.Splunk(log.SplunkPair{Key: "SecondKey", Value: "SecondValue"},
-		log.SplunkPair{Key: "RequestTime", Value: time.Date(2019, time.November, 10, 15, 0, 0, 0, time.UTC).UTC().Format("2006/01/02 15:04:05.000")},
+		log.SplunkPair{Key: "RequestTime", Value: time.Date(2019, time.November, 10, 15, 0, 0, 0, time.UTC).UTC().Format("2006/01/02 15:04:05.000000000")},
 		log.SplunkPair{Key: "MAC", Value: "010203040507"},
 		log.SplunkPair{Key: "ResponseCode", Value: 0},
 		log.SplunkPair{Key: "Slice", Value: sl1},
@@ -330,6 +330,6 @@ func ExampleSplunk() {
 	fmt.Println(buf.String())
 
 	// Output:
-	// 2009/11/10 15:00:00.000: Key1=Value1 RequestTime="2019/11/10 15:00:00.000" MAC=010203040506 ResponseCode=0 Slice=[1, 2, 3, 4] name1=[123.123, 123.124] name2=[6, 123.123]
-	// 2009/11/10 15:00:00.000: SecondKey=SecondValue RequestTime="2019/11/10 15:00:00.000" MAC=010203040507 ResponseCode=0 Slice=[1, 2, 3, 4] name1=[123.123, 123.124] name2=[6, 123.123]
+	// 2009/11/10 15:00:00.000000000: Key1=Value1 RequestTime="2019/11/10 15:00:00.000000000" MAC=010203040506 ResponseCode=0 Slice=[1, 2, 3, 4] name1=[123.123, 123.124] name2=[6, 123.123]
+	// 2009/11/10 15:00:00.000000000: SecondKey=SecondValue RequestTime="2019/11/10 15:00:00.000000000" MAC=010203040507 ResponseCode=0 Slice=[1, 2, 3, 4] name1=[123.123, 123.124] name2=[6, 123.123]
 }
